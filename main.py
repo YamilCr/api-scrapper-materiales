@@ -12,6 +12,10 @@ app.register_blueprint(products)
 def not_found(error):
     return {"error": "Ruta no encontrada"}, 404
 
+@app.errorhandler(Exception)
+def handle_error(e):
+    return {"error": str(e)}, 500
+
 @app.route('/health')
 def health():
     return {"status": "ok"}, 200
