@@ -1,110 +1,33 @@
 from bs4 import BeautifulSoup
-# from playwright.async_api import async_playwright
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
+# from playwright.sync_api import sync_playwright
 from itertools import zip_longest
 
-def fetch_data_layer_items(search: str, limit: int = 10):
-    """
-    Busca productos en easy.com.ar usando Playwright para renderizar JavaScript
-    y obtiene los datos tanto del HTML como del dataLayer.
-    """
-    # remplaza los espacios con el simbolo '%20' para una busqueda más efectiva y necesario para esta pagina en particular
-    if (len(search) < 3): # esto previene busquedas innecesarias para palabras menores de 3
-        return []
-    
-    search = search.replace(" ","%20")
-    url = f"https://www.easy.com.ar/{search}?_q={search}&map=ft"
-
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
-        page.goto(url, wait_until="networkidle", timeout=60000)
-
-        page.wait_for_selector("#gallery-layout-container", timeout=10000)
-        
-        html = page.content()
-        data_layer = page.evaluate("window.dataLayer")
-
-        browser.close()
-    
-    soup = BeautifulSoup(html, "html.parser")
-    product_divs = soup.find("div", id="gallery-layout-container")
-    
-    if not product_divs:
-        return []
-
-    # Buscar el primer bloque con ecommerce.impressions
-    list_products = []
-    for entry in data_layer:
-        ecommerce = entry.get("ecommerce")
-        if ecommerce and "impressions" in ecommerce:
-            list_products = ecommerce["impressions"]
-            break
-    
-    if not list_products:
-        return []
-
-    products_div = product_divs.find_all(
-        "div",
-        class_="arcencohogareasy-cmedia-integration-cencosud-1-x-galleryItem"
-    )
-
-    products = []
-    # limite de respuesta
-    products_div = products_div[:limit]
-    list_products = list_products[:limit]
-
-    for product_div, product_js in zip_longest(products_div, list_products):
-        # print(product_div)
-        # break
-        product_data = extract_product_data(product_div, product_js)
-        if product_data:
-            products.append(product_data)
-
-    return products
-  
-# async def fetch_data_layer_items(search: str, limit: int = 20):
+# def fetch_data_layer_items(search: str, limit: int = 20):
 #     """
 #     Busca productos en easy.com.ar usando Playwright para renderizar JavaScript
 #     y obtiene los datos tanto del HTML como del dataLayer.
 #     """
 #     # remplaza los espacios con el simbolo '%20' para una busqueda más efectiva y necesario para esta pagina en particular
-    
 #     if (len(search) < 3): # esto previene busquedas innecesarias para palabras menores de 3
 #         return []
-#     search = search.replace(" ","%20")
     
-#     # Construye la URL de búsqueda con parámetros específicos para Easy
+#     search = search.replace(" ","%20")
 #     url = f"https://www.easy.com.ar/{search}?_q={search}&map=ft"
 
-#     # Inicia Playwright en modo asincrónico
-#     async with async_playwright() as p:
-#         try:
-#             browser = await p.chromium.launch(headless=True)  # Sin interfaz gráfica
-#             page = await browser.new_page()
+#     with sync_playwright() as p:
+#         browser = p.chromium.launch(headless=True)
+#         page = browser.new_page()
+#         page.goto(url, wait_until="networkidle", timeout=60000)
 
-#             # Navega a la URL y espera que la red esté inactiva (carga completa)
-#             await page.goto(url, wait_until="networkidle", timeout=30000)
-
-#             # Espera explícita a que aparezca el contenedor de productos
-#             await page.wait_for_selector("#gallery-layout-container", timeout=10000)
-
-#             # Captura el HTML renderizado y el objeto JavaScript `dataLayer`
-#             html = await page.content()
-#             data_layer = await page.evaluate("window.dataLayer")
-
-#             # Cierra el navegador para liberar recursos
-#             await browser.close()
-#         except Exception as e:
+#         page.wait_for_selector("#gallery-layout-container", timeout=10000)
         
-#             # return []
-#             raise RuntimeError(f"No se encontró el contenedor de productos: {e}")
+#         html = page.content()
+#         data_layer = page.evaluate("window.dataLayer")
 
-
-#     # Parsea el HTML con BeautifulSoup
+#         browser.close()
+    
 #     soup = BeautifulSoup(html, "html.parser")
-
-#     # Busca el contenedor principal de productos
 #     product_divs = soup.find("div", id="gallery-layout-container")
     
 #     if not product_divs:
@@ -139,6 +62,83 @@ def fetch_data_layer_items(search: str, limit: int = 10):
 #             products.append(product_data)
 
 #     return products
+  
+async def fetch_data_layer_items(search: str, limit: int = 20):
+    """
+    Busca productos en easy.com.ar usando Playwright para renderizar JavaScript
+    y obtiene los datos tanto del HTML como del dataLayer.
+    """
+    # remplaza los espacios con el simbolo '%20' para una busqueda más efectiva y necesario para esta pagina en particular
+    
+    if (len(search) < 3): # esto previene busquedas innecesarias para palabras menores de 3
+        return []
+    search = search.replace(" ","%20")
+    
+    # Construye la URL de búsqueda con parámetros específicos para Easy
+    url = f"https://www.easy.com.ar/{search}?_q={search}&map=ft"
+
+    # Inicia Playwright en modo asincrónico
+    async with async_playwright() as p:
+        try:
+            browser = await p.chromium.launch(headless=True)  # Sin interfaz gráfica
+            page = await browser.new_page()
+
+            # Navega a la URL y espera que la red esté inactiva (carga completa)
+            await page.goto(url, wait_until="networkidle", timeout=30000)
+
+            # Espera explícita a que aparezca el contenedor de productos
+            await page.wait_for_selector("#gallery-layout-container", timeout=10000)
+
+            # Captura el HTML renderizado y el objeto JavaScript `dataLayer`
+            html = await page.content()
+            data_layer = await page.evaluate("window.dataLayer")
+
+            # Cierra el navegador para liberar recursos
+            await browser.close()
+        except Exception as e:
+        
+            # return []
+            raise RuntimeError(f"No se encontró el contenedor de productos: {e}")
+
+
+    # Parsea el HTML con BeautifulSoup
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Busca el contenedor principal de productos
+    product_divs = soup.find("div", id="gallery-layout-container")
+    
+    if not product_divs:
+        return []
+
+    # Buscar el primer bloque con ecommerce.impressions
+    list_products = []
+    for entry in data_layer:
+        ecommerce = entry.get("ecommerce")
+        if ecommerce and "impressions" in ecommerce:
+            list_products = ecommerce["impressions"]
+            break
+    
+    if not list_products:
+        return []
+
+    products_div = product_divs.find_all(
+        "div",
+        class_="arcencohogareasy-cmedia-integration-cencosud-1-x-galleryItem"
+    )
+
+    products = []
+    # limite de respuesta
+    products_div = products_div[:limit]
+    list_products = list_products[:limit]
+
+    for product_div, product_js in zip_longest(products_div, list_products):
+        # print(product_div)
+        # break
+        product_data = extract_product_data(product_div, product_js)
+        if product_data:
+            products.append(product_data)
+
+    return products
 
 def extract_product_data(product_div, product_js):
     """Extrae y fusiona datos de un producto desde el HTML y el dataLayer."""
