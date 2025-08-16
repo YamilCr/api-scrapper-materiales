@@ -84,10 +84,10 @@ async def fetch_data_layer_items(search: str, limit: int = 20):
             page = await browser.new_page()
 
             # Navega a la URL y espera que la red esté inactiva (carga completa)
-            await page.goto(url, wait_until="networkidle", timeout=30000)
+            await page.goto(url, wait_until="networkidle", timeout=60000)
 
             # Espera explícita a que aparezca el contenedor de productos
-            await page.wait_for_selector("#gallery-layout-container", timeout=10000)
+            await page.wait_for_selector("#gallery-layout-container", timeout=20000)
 
             # Captura el HTML renderizado y el objeto JavaScript `dataLayer`
             html = await page.content()
