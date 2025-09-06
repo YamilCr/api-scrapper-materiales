@@ -27,15 +27,18 @@ async def fetch_data_items_ml(search: str, limit: int = 30, campo = "name" ,desc
     
     # Definis tus cookies necesarias
     cookies = {
-        'last_query': 'cemento',
-        '_d2id': 'fe9b98ad-29ea-470b-a686-9ceba6db7130-n',
-        '_csrf': 'Z1x5THU_ZjBs1KrLAFu8UNYC'
+        'last_query': search,
+        # '_csrf': 'Z1x5THU_ZjBs1KrLAFu8UNYC',
+        # '_d2id': 'fe9b98ad-29ea-470b-a686-9ceba6db7130-n',
     }
     
     # Definicion de headers
     headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
     "Accept-Language": "es-AR,es;q=0.9",
+    "Referer": "https://www.mercadolibre.com.ar/",
+    "Origin": "https://www.mercadolibre.com.ar/",
+    "Connection": "keep-alive",
     }
 
 
