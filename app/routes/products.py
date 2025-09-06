@@ -26,8 +26,8 @@ def search_for_proveedor(proveedor):
     search = request.args.get('search')
     limit = int(request.args.get('limit', 20))
 
-    proveedores_validos = {"easy", "montessi", "neomat", "forte"}
-
+    proveedores_validos = {"easy", "montessi", "neomat", "forte", "meli"}
+    # print(proveedor)
     if proveedor.lower() not in proveedores_validos:
         return jsonify({"error": f"Proveedor '{proveedor}' no es válido"}), 400
 
