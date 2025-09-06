@@ -23,8 +23,9 @@ async def fetch_data_items_ml(search: str, limit: int = 30, campo = "name" ,desc
     
     if (search == '' or search == None):
         return []
-    url = f"https://listado.mercadolibre.com.ar/construccion/materiales-obra/obra-pesada/{search}_NoIndex_True?sb=category#D[A:{search_text}]" 
-    
+    # url = f"https://listado.mercadolibre.com.ar/construccion/materiales-obra/obra-pesada/{search}_NoIndex_True?sb=category#D[A:{search_text}]" 
+    url = f"https://listado.mercadolibre.com.ar/{search}#D[A:{search_text}]"
+ 
     # Definis tus cookies necesarias
     cookies = {
         'last_query': search,
