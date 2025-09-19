@@ -24,7 +24,7 @@ def fetch_all_products(search: str, limit: int = 50):
             fetch_data_items_montessi(search, 5),
             fetch_data_items_forte(search, 5),
             fetch_data_items_neomat(search, 5),
-            fetch_data_items_ml(search,15)
+            # fetch_data_items_ml(search,15)
         ]
         # try:
         #     results_easy = await fetch_data_layer_items(search, 10)
