@@ -24,7 +24,7 @@ async def fetch_data_items_ml(search: str, limit: int = 30, campo = "name" ,desc
     if (search == '' or search == None):
         return []
     # url = f"https://listado.mercadolibre.com.ar/construccion/materiales-obra/obra-pesada/{search}_NoIndex_True?sb=category#D[A:{search_text}]" 
-    url = f"https://listado.mercadolibre.com.ar/{search}#D[A:{search_text}]"
+    url = f"https://listado.mercadolibre.com.ar/{search}#D[A:{search}]"
  
     # Definis tus cookies necesarias
     cookies = {
@@ -37,20 +37,10 @@ async def fetch_data_items_ml(search: str, limit: int = 30, campo = "name" ,desc
     # Definicion de headers
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
-        "Accept-Encoding": "gzip, deflate, br",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "es-AR,es;q=0.9",
-        "Referer": "https://www.mercadolibre.com.ar/",
-        "Origin": "https://www.mercadolibre.com.ar/",
-        "Connection": "keep-alive",
-        "Cache-Control": "no-cache",
-        "Sec-Fetch-Dest": "document",
-        "Sec-Fetch-Mode": "navigate",
-        "Sec-Fetch-Site": "same-origin",
-        "Sec-Fetch-User": "?1",
-        "Upgrade-Insecure-Requests": "1"
+        "Accept-Encoding": "gzip, deflate"
     }
-
     try:
         # Solicitar la página web
         async with httpx.AsyncClient() as client:
@@ -172,7 +162,7 @@ def ordenar_por_campo(lista, campo, descendente=False):
     return sorted(lista, key=clave, reverse=descendente)
 
 
-# # Ejecutar como script para probar
+# Ejecutar como script para probar
 # if __name__ == "__main__":
 #     products = asyncio.run(fetch_data_items_ml("cemento pcr 2000", 15, "price_number", True)) 
 #     print(json.dumps(products, indent=2, ensure_ascii=False))
