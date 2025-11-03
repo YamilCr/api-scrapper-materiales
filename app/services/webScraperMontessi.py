@@ -1,8 +1,10 @@
 import httpx                        # Para hacer solicitudes HTTP
 from bs4 import BeautifulSoup       # Para parsear el HTML
 import json                         # Para imprimir en formato JSON
-import asyncio 
+from app.services.decorator import with_timeout_and_log
+import asyncio, json, time
 
+@with_timeout_and_log(timeout=20)
 async def fetch_data_items_montessi(search: str, limit: int = 15):
     """
     Realiza una búsqueda en www.mottesimateriales.com.ar y extrae los productos del bloque div que contengan la siguiente clase `js-item-product`
@@ -20,6 +22,7 @@ async def fetch_data_items_montessi(search: str, limit: int = 15):
     if (search == '' or search == None):
         return []
     url = f"https://www.mottesimateriales.com.ar/search/?q={search}"
+    start_time = time.time()  # <--- inicio del timer
     headers = {
         "User-Agent": "Mozilla/5.0"
     }
@@ -38,6 +41,11 @@ async def fetch_data_items_montessi(search: str, limit: int = 15):
         product_divs = soup.find_all("div", class_="js-item-product")
 
         products = []
+        end_time = time.time()  # <--- fin del timer
+        print(
+            f"[Servidor - Motessi] Tiempo de respuesta de la peticion: {end_time - start_time:.2f} segundos"
+        )  # <--- solo para logs
+
         for product_div in product_divs[:limit]:
             # print(product_div)
             # break

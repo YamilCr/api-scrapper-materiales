@@ -2,8 +2,10 @@ from bs4 import BeautifulSoup
 import httpx
 import json
 import re
-import asyncio # para consultas en paralelo aun no esta en marcha
+from app.services.decorator import with_timeout_and_log
+import asyncio, json, time
 
+@with_timeout_and_log(timeout=20)
 async def fetch_data_items_forte(search: str, limit: int = 15):
     """
     Realiza una búsqueda en www.forteindustrial.com.ar y extrae los productos del bloque div que contengan la siguiente clase `js-item-product`
@@ -28,7 +30,7 @@ async def fetch_data_items_forte(search: str, limit: int = 15):
         "User-Agent": "Mozilla/5.0"
     }
 
-
+    start_time = time.time()  # <--- inicio del timer
     try:
         # Solicitar la página web
         async with httpx.AsyncClient() as client:
@@ -64,7 +66,11 @@ async def fetch_data_items_forte(search: str, limit: int = 15):
         # limite de respuesta
         products_ol = products_ol[:limit]
         list_products = list_products[:limit]
-        
+        end_time = time.time()  # <--- fin del timer
+        print(
+            f"[Servidor - Forte] Tiempo de respuesta de la peticion: {end_time - start_time:.2f} segundos"
+        )  # <--- solo para logs
+
         for product_li, product_js in zip(products_ol, list_products):
             # print(product_js)
             # break

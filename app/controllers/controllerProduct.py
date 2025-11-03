@@ -20,21 +20,16 @@ def fetch_all_products(search: str, limit: int = 50):
     # Ejecutamos funciones async desde sync usando asyncio.run()
     async def gather_all():
         tasks = [
-            # fetch_data_layer_items(search, 15),
-            fetch_data_items_montessi(search, 5),
-            fetch_data_items_forte(search, 5),
-            fetch_data_items_neomat(search, 5),
-            # fetch_data_items_ml(search,15)
+            fetch_data_layer_items(search, 10),
+            fetch_data_items_montessi(search, 7),
+            fetch_data_items_forte(search, 7),
+            fetch_data_items_neomat(search, 7),
+            fetch_data_items_ml(search,10)
         ]
-        # try:
-        #     results_easy = await fetch_data_layer_items(search, 10)
-        # except Exception as e:
-        #     print(f"[Easy] Error al obtener productos: {e}")
-        #     results_easy = []
-        
+
         results = await asyncio.gather(*tasks)
         # results.append(results_easy)
-        all_items = [item for sublist in results for item in sublist]
+        all_items = [item for sublist in results for item in sublist if isinstance(sublist, list)]
         return all_items[:limit]
 
     return asyncio.run(gather_all())

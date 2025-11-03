@@ -1,8 +1,11 @@
 import httpx                        # Para hacer solicitudes HTTP
 from bs4 import BeautifulSoup       # Para parsear el HTML
 import json                         # Para imprimir en formato JSON
-import asyncio 
+import asyncio, time
 from app.services.metodosGenericos import ordenar_por_campo
+from app.services.decorator import with_timeout_and_log
+
+@with_timeout_and_log(timeout=20)
 async def fetch_data_items_ml(search: str, limit: int = 30, campo = "name" ,descendente = False):
     """
     Realiza una búsqueda en www.mottesimateriales.com.ar y extrae los productos del bloque div que contengan la siguiente clase `js-item-product`
@@ -25,7 +28,7 @@ async def fetch_data_items_ml(search: str, limit: int = 30, campo = "name" ,desc
         return []
     # url = f"https://listado.mercadolibre.com.ar/construccion/materiales-obra/obra-pesada/{search}_NoIndex_True?sb=category#D[A:{search_text}]" 
     url = f"https://listado.mercadolibre.com.ar/{search}#D[A:{search}]"
- 
+    start_time = time.time()  # <--- inicio del timer
     # Definis tus cookies necesarias
     cookies = {
         'last_query': search,
@@ -54,6 +57,11 @@ async def fetch_data_items_ml(search: str, limit: int = 30, campo = "name" ,desc
         product_ol = soup.find("ol", class_="ui-search-layout")
 
         products = []
+        end_time = time.time()  # <--- fin del timer
+        print(
+            f"[Servidor - ML] Tiempo de respuesta de la peticion: {end_time - start_time:.2f} segundos"
+        )  # <--- solo para logs
+
         for product_li in product_ol.find_all("li", class_="ui-search-layout__item")[:limit]:
             # print(product_li.find("a", class_="poly-component__title").text.strip())
             # # break

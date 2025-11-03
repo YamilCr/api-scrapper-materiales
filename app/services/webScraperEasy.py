@@ -1,68 +1,10 @@
 from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
-# from playwright.sync_api import sync_playwright
 from itertools import zip_longest
+from app.services.decorator import with_timeout_and_log
+import asyncio, json, time
 
-# def fetch_data_layer_items(search: str, limit: int = 20):
-#     """
-#     Busca productos en easy.com.ar usando Playwright para renderizar JavaScript
-#     y obtiene los datos tanto del HTML como del dataLayer.
-#     """
-#     # remplaza los espacios con el simbolo '%20' para una busqueda más efectiva y necesario para esta pagina en particular
-#     if (len(search) < 3): # esto previene busquedas innecesarias para palabras menores de 3
-#         return []
-    
-#     search = search.replace(" ","%20")
-#     url = f"https://www.easy.com.ar/{search}?_q={search}&map=ft"
-
-#     with sync_playwright() as p:
-#         browser = p.chromium.launch(headless=True)
-#         page = browser.new_page()
-#         page.goto(url, wait_until="networkidle", timeout=60000)
-
-#         page.wait_for_selector("#gallery-layout-container", timeout=10000)
-        
-#         html = page.content()
-#         data_layer = page.evaluate("window.dataLayer")
-
-#         browser.close()
-    
-#     soup = BeautifulSoup(html, "html.parser")
-#     product_divs = soup.find("div", id="gallery-layout-container")
-    
-#     if not product_divs:
-#         return []
-
-#     # Buscar el primer bloque con ecommerce.impressions
-#     list_products = []
-#     for entry in data_layer:
-#         ecommerce = entry.get("ecommerce")
-#         if ecommerce and "impressions" in ecommerce:
-#             list_products = ecommerce["impressions"]
-#             break
-    
-#     if not list_products:
-#         return []
-
-#     products_div = product_divs.find_all(
-#         "div",
-#         class_="arcencohogareasy-cmedia-integration-cencosud-1-x-galleryItem"
-#     )
-
-#     products = []
-#     # limite de respuesta
-#     products_div = products_div[:limit]
-#     list_products = list_products[:limit]
-
-#     for product_div, product_js in zip_longest(products_div, list_products):
-#         # print(product_div)
-#         # break
-#         product_data = extract_product_data(product_div, product_js)
-#         if product_data:
-#             products.append(product_data)
-
-#     return products
-  
+@with_timeout_and_log(timeout=25)
 async def fetch_data_layer_items(search: str, limit: int = 20):
     """
     Busca productos en easy.com.ar usando Playwright para renderizar JavaScript
@@ -76,7 +18,7 @@ async def fetch_data_layer_items(search: str, limit: int = 20):
     
     # Construye la URL de búsqueda con parámetros específicos para Easy
     url = f"https://www.easy.com.ar/{search}?_q={search}&map=ft"
-
+    start_time = time.time()  # <--- inicio del timer
     # Inicia Playwright en modo asincrónico
     async with async_playwright() as p:
         try:
@@ -130,6 +72,10 @@ async def fetch_data_layer_items(search: str, limit: int = 20):
     # limite de respuesta
     products_div = products_div[:limit]
     list_products = list_products[:limit]
+    end_time = time.time()  # <--- fin del timer
+    print(
+        f"[Servidor - Easy] Tiempo de respuesta de la peticion: {end_time - start_time:.2f} segundos"
+    )  # <--- solo para logs
 
     for product_div, product_js in zip_longest(products_div, list_products):
         # print(product_div)
@@ -219,3 +165,5 @@ def extract_product_data(product_div, product_js):
     except Exception as e:
         print("Error procesando producto:", e)
         return {}
+# products = asyncio.run(fetch_data_layer_items("cemento"))
+# print(json.dumps(products, indent=2, ensure_ascii=False))
