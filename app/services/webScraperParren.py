@@ -67,6 +67,10 @@ def extract_product_data(product_div):
     image_url = "https://www.perrenycia.com.ar/img/logo.png"
 
     try:
+        # ID del producto desde input
+        hidden_input = product_div.find("input", {"name": "id_product"})
+        if hidden_input:
+            product_id = hidden_input.get("value")
         # Nombre y link
         title_tag = product_div.find("h2", class_="product-title")
         if title_tag and title_tag.a:

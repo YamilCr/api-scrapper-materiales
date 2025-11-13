@@ -71,6 +71,10 @@ def extract_product_data(product_div):
     image_url = "https://www.corralon-fernandes.com/img/logo.png"
 
     try:
+        # ID del producto desde input
+        hidden_input = product_div.find("input", {"name": "id_product"})
+        if hidden_input:
+            product_id = hidden_input.get("value")
         # Nombre y link
         title_tag = product_div.find("h2", class_="product-title")
         if title_tag and title_tag.a:
@@ -110,7 +114,7 @@ def extract_product_data(product_div):
             image_url = img_tag.get("data-src")
 
         # Stock (no está explícito)
-        stock = None
+        stock = 1
 
     except Exception as e:
         print("Error encontrado:", e)
@@ -131,7 +135,7 @@ def extract_product_data(product_div):
         "logo": "https://www.corralon-fernandes.com/img/logo.png"
     }
 
-# # Ejecutar como script para probar
-# if __name__ == "__main__":
-#     products = asyncio.run(fetch_data_items("cemento")) 
-#     print(json.dumps(products, indent=2, ensure_ascii=False))
+# Ejecutar como script para probar
+if __name__ == "__main__":
+    products = asyncio.run(fetch_data_items("cemento")) 
+    print(json.dumps(products, indent=2, ensure_ascii=False))
